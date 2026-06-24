@@ -24,3 +24,23 @@ If int a = 10;, then &a is the physical location in your RAM where 10 is stored.
 1. Execution: The execvp() System Callexecvp(): This system call replaces the currently running process image with a brand-new program binary (like /bin/ls or /bin/pwd). When the child process calls execvp(), it completely wipes its own memory space and loads the new program. If it succeeds, the code never returns to your shell script from that child; the child turns into the executed program instead.
 
 1. Built-in Commands vs. System CommandsThis distinction is vital for shell architecture:System Commands (External Binaries): Programs like ls, pwd, or cat are independent executable files compiled and stored in system folders like /bin. To run them, the shell must spin up a completely new process. Built-in Commands (Internal Shell Logic): Commands like cd or exit cannot be run as separate programs. If cd were an external program, it would change the directory of its own temporary process and leave your main shell exactly where it was! Therefore, built-ins are coded directly into the shell's logic using internal operating system APIs like chdir()
+
+======================codecrafters====================================
+
+1. The exit Builtin
+   The exit builtin terminates the shell. Builtin commands are handled directly by the shell without starting a new process.
+
+When your shell receives the exit command, it should terminate immediately.
+
+2. The echo Builtin
+   The echo builtin prints its arguments to stdout, with spaces between them, and a newline (\n) at the end.
+
+3. The type Builtin
+   The type builtin is used to determine how a command would be interpreted if it were used. It checks whether a command is a builtin, an executable file, or unrecognized.
+
+The PATH Environment Variable
+The PATH environment variable specifies a list of directories where the shell should look for executable programs.
+
+For example, if the PATH is set to /dir1:/dir2:/dir3, the shell would search for executables in /dir1, then /dir2, and finally /dir3, in that order.
+
+you need to actually run external programs with arguments. The simplest way is to use fork() + execvp()
