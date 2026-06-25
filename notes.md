@@ -62,3 +62,24 @@ C
 If SHELL_H isn't defined yet, the compiler reads the contents and defines it. If another file tries to include it later, #ifndef evaluates to false, skipping the file completely and preventing duplicate definitions
 
 When you use a standard function like fgets() to read text from the terminal, it grabs everything you typed up until you hit Enter
+
+=============================================================
+we use strtok(). Here is exactly how it alters your memory:
+
+The Target: You pass strtok your input string: "echo Hello World".
+
+The Slicing: It looks for your delimiter (a space " "). When it finds one, it dynamically replaces that space character with a null terminator (\0).
+
+The Result: It returns a pointer directly to the beginning of that specific word block.
+
+By running strtok repeatedly in a loop, we can populate an array of pointers (char \*args[]) pointing to each isolated word.
+
+strtok(input, " ");: Scans input until it hits a space, drops a \0 right there, and returns the start of the word.
+
+strtok(NULL, " ");: Passing NULL tells strtok to remember where it left off in the previous string and continue slicing.
+
+pid_t pid = fork();: Clones the shell. Now, two completely separate processes are executing this exact same line simultaneously.
+
+execvp(args[0], args): Tells the OS to look for the system command binary named in args[0] (e.g., ls or echo), load it, and replace the child's code space with it.
+
+waitpid(pid, NULL, 0);: Runs only inside the main Parent process. It forces your interactive shell interface prompt to halt and wait until the child finishes executing its output.
