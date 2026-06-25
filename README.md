@@ -8,8 +8,10 @@ Spider_Task_2/
 # HOW TO RUN
 
 cd /src
-gcc shell.c -o shell
-./shell
+
+wsl -d ubuntu
+gcc -Iinclude src/main.c src/execute.c -o octo-shell
+./octo-shell
 
 # CODECRAFTERS
 

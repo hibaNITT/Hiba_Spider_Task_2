@@ -37,6 +37,26 @@ void tokenize_and_execute(char *input)
         return;
     }
 
+    // BUILT-IN COMMANDS
+    // Handling 'cd' entirely inside the parent process
+    if (strcmp(args[0], "cd") == 0)
+    {
+
+        // If the user didn't specify a directory, or typed 'cd' alone
+        if (args[1] == NULL)
+        {
+            printf("octo-shell: cd: missing argument\n");
+        }
+
+        // chdir returns -1 if the path doesn't exist or is invalid
+        else if (chdir(args[1]) != 0)
+        {
+            perror("octo-shell: cd");
+        }
+
+        return; // No forking needed for built-ins.
+    }
+
     // ======================== EXECUTION =====================================
 
     // pid_t is a data type (usually an integer) defined in <sys/types.h>.

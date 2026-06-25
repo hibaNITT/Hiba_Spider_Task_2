@@ -83,3 +83,35 @@ pid_t pid = fork();: Clones the shell. Now, two completely separate processes ar
 execvp(args[0], args): Tells the OS to look for the system command binary named in args[0] (e.g., ls or echo), load it, and replace the child's code space with it.
 
 waitpid(pid, NULL, 0);: Runs only inside the main Parent process. It forces your interactive shell interface prompt to halt and wait until the child finishes executing its output.
+
+===================================================================
+When you have a modular project with multiple .c files, you can't just run them like a script. The compiler has to translate each individual code file into machine code before it can bind them together.
+
+Compilation Step: The compiler takes src/main.c and src/execute.c and translates them into intermediate binary blocks called object files (main.o and execute.o).
+
+Linking Step: The linker takes those pieces, resolves the blueprints (the header file connections), stitches them together, and outputs a single executable file.
+
+Let's compile our modular architecture using GCC.
+
+Bash
+
+wsl -d ubuntu first
+gcc -Iinclude src/main.c src/execute.c -o octo-shell
+
+gcc: Invokes the GNU Compiler Collection.
+
+-Iinclude: This flag tells the compiler, "Hey, look inside the include folder to find custom header files like #include "shell.h"."
+
+src/main.c src/execute.c: We supply both source files so the compiler can read the UI loop and the execution brain at the same time.
+
+-o octo-shell: Specifies the output binary name. Instead of a generic a.out, it compiles directly into a file named octo-shell.
+
+Exactly! ls -la lists all files, including hidden files (those starting with a dot .). Behind the scenes, your parent shell calls fork(), duplicating itself. The newly created child process calls execvp(), replacing its own memory space with the machine code of the /bin/ls program, while the parent shell goes to sleep using waitpid(). When ls finishes displaying the files, the child terminates, and the parent shell wakes up to show the prompt again.
+
+===============================================================
+
+If you type cd .. right now, your shell will try to treat it like a system command—cloning a child process and running cd inside the child.
+
+But as we explored in our roadmap concepts: If a child process changes its working directory, it changes it ONLY for itself and then dies, leaving your main shell exactly where it started.
+
+Therefore, commands like cd must be executed as Built-in Commands directly inside the parent process using the operating system's internal chdir() API.
