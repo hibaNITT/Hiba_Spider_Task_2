@@ -1,48 +1,41 @@
 #include <stdio.h>
-#include <stdlib.h>
 #include <string.h>
 #include "shell.h"
 
 int main()
 {
-    char input[MAX_INPUT_SIZE];
+    char input[2000]; // allocation of space to hold user input
 
+    // REPL Loop
     while (1)
     {
-        // Print custom prompt
         printf("octo-shell$ ");
-        fflush(stdout);
 
-        //         When you read input in C using fgets, pressing Ctrl+D in the terminal signals end-of-file (EOF) on stdin.
-        //          That means there’s no more input to read. In practice:
-        //            fgets will return NULL when EOF is reached.
+        fflush(stdout); // Ensures the prompt displays immediately
 
-        // Read input and check for EOF (Ctrl+D)
+        // Exit loop if something goes wrong or EOF is reached
+        // Read up to 2000bytes of text from standard input (stdin)
         if (fgets(input, sizeof(input), stdin) == NULL)
         {
-            printf("\n");
             break;
         }
 
-        // Clean trailing newline
+        // removing the trailing newline character '\n' added by hitting Enter
+        // strcspn scans our input string and tells us the exact position index
+        //  where \n is located. We then overwrite that index with a null-terminator byte (\0),
         input[strcspn(input, "\n")] = '\0';
 
-        // Skipping empty inputs
-        if (strlen(input) == 0)
-        {
-            continue;
-        }
-
-        // Intercept fast hardcoded exit
+        // Check if the user wants to leave the shell
         if (strcmp(input, "exit") == 0)
         {
-            printf("Exiting octo-shell cleanly...\n");
             break;
         }
 
-        // Pass to our execution engine
+        // If it's not 'exit', hand the input to our execution brain - the function prototype is mentioned in shell.h
+        // this func is defined inn execute.c
         tokenize_and_execute(input);
     }
 
+    printf("Goodbye\n");
     return 0;
 }

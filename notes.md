@@ -44,3 +44,21 @@ The PATH environment variable specifies a list of directories where the shell sh
 For example, if the PATH is set to /dir1:/dir2:/dir3, the shell would search for executables in /dir1, then /dir2, and finally /dir3, in that order.
 
 you need to actually run external programs with arguments. The simplest way is to use fork() + execvp()
+
+=====================================================
+
+1. Function Prototypes (The Contract)
+   The C compiler compiles files from top to bottom, one .c file at a time. If main.c tries to call a function written inside execute.c, the compiler will panic because it doesn't know what parameters that function accepts or what it returns.
+   A Function Prototype is a single line that acts as a promise to the compiler: "Hey, a function with this signature exists somewhere else. Let us compile for now, and the Linker will stitch us together later."
+
+2. Header Guards
+   When a project grows, multiple files might include shell.h. Without protection, the compiler will read the same file multiple times, see duplicate definitions, and fail the build. We prevent this using a Header Guard:
+
+C
+#ifndef SHELL_H
+#define SHELL_H
+// Content goes here
+#endif
+If SHELL_H isn't defined yet, the compiler reads the contents and defines it. If another file tries to include it later, #ifndef evaluates to false, skipping the file completely and preventing duplicate definitions
+
+When you use a standard function like fgets() to read text from the terminal, it grabs everything you typed up until you hit Enter
