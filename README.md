@@ -102,3 +102,28 @@ bash
 sudo apt update
 sudo apt install build-essential
 Then compile with gcc filename.c -o output.
+
+TO TEST EVEL 2
+Phase 1: Recompilation
+Run your compilation routine to pull in the newly expanded src/nittalk.c logic:
+
+Bash
+gcc -Wall -Wextra -Iinclude src/main.c src/execute.c src/nittalk.c -o octo-shell
+Phase 2: Simulating the Exchange
+Open two separate terminal windows side by side to simulate Terminal A (Listener) and Terminal B (Sender).
+
+In Terminal A (The Listener):
+Launch your shell and prime the listening socket:
+
+Bash
+./octo-shell
+octo-shell$ nittalk -listen
+You should see your beacon switch online, showing it is bound to port 8080 and blocking inside the accept() system call, waiting for traffic.
+
+In Terminal B (The Sender):
+Create a test file containing some dummy data, launch your shell, and blast it over to localhost (127.0.0.1):
+
+Bash
+echo "SPIDER network data stream test transmission." > secrets.txt
+./octo-shell
+octo-shell$ nittalk -s 127.0.0.1 secrets.txt
