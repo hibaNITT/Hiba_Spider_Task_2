@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <unistd.h>
+#include <stdlib.h>
 #include <sys/wait.h>
 #include "shell.h"
 
@@ -37,7 +38,14 @@ void tokenize_and_execute(char *input)
         return;
     }
 
-    // BUILT-IN COMMANDS
+    // BUILT-IN COMMANDS ==============================
+
+    // Handling 'exit' entirely inside the parent process
+    if (strcmp(args[0], "exit") == 0)
+    {
+        exit(0);
+    }
+
     // Handling 'cd' entirely inside the parent process
     if (strcmp(args[0], "cd") == 0)
     {
@@ -54,6 +62,13 @@ void tokenize_and_execute(char *input)
             perror("octo-shell: cd");
         }
 
+        return; // No forking needed for built-ins.
+    }
+
+    // LEVEL 2 : Hand over to the radio protocol subsystem
+    if (strcmp(args[0], "nittalk") == 0)
+    {
+        handle_nittalk(args);
         return; // No forking needed for built-ins.
     }
 

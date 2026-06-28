@@ -93,3 +93,12 @@ to quit.
 - **Do not compile/run in Git Bash or MinGW** — they don’t support POSIX headers. Always use WSL Ubuntu.
 - If you see `Exec format error`, it means you tried to run a Linux binary from Windows. Switch back to WSL.
 - Codecrafters tests will run your program in a Linux environment, so WSL matches the expected setup.
+
+Compile on Linux (Ubuntu, WSL, or a VM).
+
+Install build tools:
+
+bash
+sudo apt update
+sudo apt install build-essential
+Then compile with gcc filename.c -o output.
