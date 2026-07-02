@@ -13,7 +13,11 @@ wsl -d ubuntu
 gcc -Iinclude src/main.c src/execute.c -o octo-shell
 ./octo-shell
 
-# CODECRAFTERS
+## CODECRAFTERS
+
+### Proof
+
+![Codecrafters Shell Challenge](./proof.png)
 
 ## How to Build and Run
 
@@ -127,3 +131,109 @@ Bash
 echo "SPIDER network data stream test transmission." > secrets.txt
 ./octo-shell
 octo-shell$ nittalk -s 127.0.0.1 secrets.txt
+
+## How to test level 2
+
+Here’s your workflow neatly formatted into **Markdown (MD)** so you can drop it straight into a README or documentation file:
+
+````markdown
+# Octo-Shell Transmission Workflow
+
+## Step 1: Compile the Project
+
+Make sure your changes are properly compiled. Run your project's build command or invoke `gcc` from your root directory:
+
+```bash
+make clean && make
+```
+````
+
+Or, if you don't have a Makefile configured yet, compile the source files manually:
+
+```bash
+gcc -g -Iinclude src/main.c src/execute.c src/nittalk.c -o octo-shell
+```
+
+---
+
+## Step 2: Set Up the Listening Post (Terminal A)
+
+Launch your shell and start it up in listener mode. This will open up port 8080 and sit in a blocking state waiting for bytes.
+
+Fire up the shell:
+
+```bash
+./octo-shell
+```
+
+Execute the listener command at your custom prompt:
+
+```bash
+octo-shell$ nittalk -listen
+```
+
+Expected output:
+
+```plaintext
+ Initializing covert listening post on port 8080...
+ Beacon online. Awaiting inbound transmission...
+```
+
+---
+
+## Step 3: Trigger the Stealth Transmission (Terminal B)
+
+Open a separate terminal window or tab, navigate to your project directory, and create a dummy text file to send.
+
+Generate a test file containing some recognizable text:
+
+```bash
+echo "This is a high-security transmission passing through our continuous stream cipher." > test_payload.txt
+```
+
+Launch your second shell instance:
+
+```bash
+./octo-shell
+```
+
+Run the sender command targeting your local loopback IP address:
+
+```bash
+octo-shell$ nittalk -s 127.0.0.1 secrets.txt
+```
+
+Sender output:
+
+```plaintext
+[*] Preparing stealth transmission payload to 127.0.0.1...
+[+] Link established! Transmitting 72-byte radio header...
+[+] Metadata broadcast complete.
+ Initiating file transmission stream...
+All bytes deployed over the wire successfully.
+```
+
+Listener output:
+
+```plaintext
+ Target connected! Secure link established.
+[*] Synchronizing stream windows... Awaiting 72-byte header...
+ Header Verified! Incoming File: 'test_payload.txt' | Size: 84 bytes
+ Downloading payload streams...
+ Success! File transmission complete. Saved as 'test_payload.txt' (84/84 bytes received)
+```
+
+---
+
+## Step 4: Verify the Results
+
+Check if the file was written out successfully without corruption by viewing it in your terminal:
+
+```bash
+cat test_payload.txt
+```
+
+```
+
+Would you like me to also add **syntax highlighting for commands vs. outputs** (like `bash` for commands and `plaintext` for logs) throughout the MD so it looks polished in GitHub?
+```
