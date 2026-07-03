@@ -1,6 +1,6 @@
 CC = gcc
 CFLAGS = -Wall -Wextra -g -Iinclude
-SRC = src/main.c src/execute.c src/nittalk.c
+SRC = src/main.c src/execute.c src/nittalk.c src/crypto.c
 OBJ = $(SRC:.c=.o)
 TARGET = octo-shell
 

@@ -289,3 +289,22 @@ Fires the 72-byte header across the socket connection.
 Immediately blasts the raw contents of the file right behind it.
 
 ===========================================
+
+LEVEL 3
+
+Step 1: The Key Exchange Protocol & Modular ExponentiationOur first goal is to establish a shared secret key ($K$) between your terminal and your friend's terminal over a compromised LAN without actually transmitting the key itself. We do this using a Diffie-Hellman-style handshake.The C Math Warning: Why pow() FailsAs the instructions emphasize, using <math.h>'s standard pow(g, a) will instantly overflow a 64-bit container (uint64_t) before the modulo operation (% p) can even be applied. For example, if $g = 5$ and $a = 40$, $5^{40}$ is a massive number that completely destroys integer boundaries, leaving you with corrupted garbage data.To keep calculations safely within memory limits, we must implement the Square-and-Multiply (Modular Exponentiation) algorithm. This method applies the modulo at every intermediate step, ensuring our values never exceed $p \times p$.
+
+# Modular Exponentiation Helper
+
+Step 1: Creating the Crypto Interface (crypto.h)
+Step 1: Defining the Diffie-Hellman Exchange Handshake VariablesBefore we can perform Full-Stream Uniform Encryption, your radio needs to establish a mutual shared key over an insecure network connection using the mathematical functions you've structured inside src/crypto.c.To prevent cross-architecture parsing errors and keep tracking simple, we will map out our variables inside src/nittalk.c.The Mathematical PropertiesWe're going to utilize a tiny prime for testing purposes ($p = 9973$) alongside a standard generator base ($g = 5$). Both your terminal and your friend's terminal will pick a secret private integer value, compute a public share, transmit it over the open TCP channel, and combine them mathematically to arrive at an identical secret key without exposing it to the net
+
+Step 2: The Key Exchange BlueprintWhen a connection opens, the handshake flows like this:Sender (Alice) generates a secret random number a. It calculates its public share: $A = g^a \pmod p$.Listener (Bob) generates a secret random number b. It calculates its public share: $B = g^b \pmod p$.They transmit their public shares ($A$ and $B$) as raw integers over the socket right at the start.Sender computes the final key: $K = B^a \pmod p$.Listener computes the final key: $K = A^b \pmod p$.
+
+Before either terminal transmits a single file byte or even the structural RadioHeader, they must establish the shared secret key $K$ via our over-the-air mathematical handshake:Generate a Secret Integer ($a$ for Sender, $b$ for Listener).Compute the Public Share ($A = g^a \pmod p$ or $B = g^b \pmod p$).Transmit & Receive Public Shares across the raw socket.Compute the Shared Secret ($K$) and instantiate the multi-byte rolling cipher stream state.
+
+To prevent any cross-architecture parsing issues, we will use standard network parameters:
+
+Tiny testing prime: $p = 9973$
+
+Base generator: $g = 5$
