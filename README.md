@@ -316,3 +316,42 @@ Shared Secret: 1571
 Keystream: 186 209 252 43 142 149 240 ...
 
 The entire sequence should match.
+
+## step 3 testing
+
+Create a test file
+echo "Hi!" > test.txt
+
+make
+
+Terminal 1 (Receiver)
+./octo-shell
+nittalk -listen 4443
+
+Expected:
+
+[📡] Beacon online. Awaiting inbound transmission...
+Terminal 2 (Sender)
+./octo-shell
+nittalk -s 127.0.0.1 test.txt 4443
+
+Expected:
+
+Keystream: 206 213 48 207 226 217 100 115 54 29 (something)
+Shared Secret: ####
+File transmitted successfully.
+
+Receiver:
+
+Keystream: 206 213 48 207 226 217 100 115 54 29 (something)
+Shared Secret: ####
+File transmission complete.
+Verify
+
+Open the received file:
+
+cat test.txt
+
+It should print
+
+Hi!

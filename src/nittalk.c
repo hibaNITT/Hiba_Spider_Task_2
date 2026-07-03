@@ -116,15 +116,6 @@ void handle_nittalk(char **args)
         printf("Shared Secret: %u\n", shared_secret);
         uint32_t keystream_state = shared_secret;
 
-        printf("Keystream: ");
-
-        for (int i = 0; i < 10; i++)
-        {
-            printf("%u ", generate_keystream_byte(&keystream_state));
-        }
-
-        printf("\n");
-
         // ===================================================================================
 
         int bytes_received = 0;
@@ -193,6 +184,10 @@ void handle_nittalk(char **args)
                 else
                     printf("[!] Connection lost before full file transmission completed.\n");
                 break;
+            }
+            for (int i = 0; i < n; i++)
+            {
+                buffer[i] ^= generate_keystream_byte(&keystream_state);
             }
 
             fwrite(buffer, 1, n, out_file);
@@ -317,19 +312,11 @@ void handle_nittalk(char **args)
         uint32_t shared_secret =
             generate_shared_secret(received_public_key, private_key);
 
-        printf("Shared Secret: %u\n", shared_secret);
-
         uint32_t keystream_state = shared_secret;
 
-        printf("Keystream: ");
+        printf("Shared Secret: %u\n", shared_secret);
 
-        for (int i = 0; i < 10; i++)
-        {
-            printf("%u ", generate_keystream_byte(&keystream_state));
-        }
-
-        printf("\n");
-        // ====================================================================================
+        // ==============================================================================
 
         // Blast the header onto the wire
         if (send(sock_fd, &header, sizeof(struct RadioHeader), 0) < 0)
@@ -348,6 +335,10 @@ void handle_nittalk(char **args)
         // Read from the local file in 1024-byte chunks and push them over the socket
         while ((bytes_read = fread(send_buffer, 1, sizeof(send_buffer), file)) > 0)
         {
+            for (size_t i = 0; i < bytes_read; i++)
+            {
+                send_buffer[i] ^= generate_keystream_byte(&keystream_state);
+            }
             int total_sent = 0;
             // Handle cases where send() does not transmit the whole chunk in one go
             while (total_sent < (int)bytes_read)
@@ -363,6 +354,16 @@ void handle_nittalk(char **args)
                 total_sent += sent;
             }
         }
+        printf("[Sender] Keystream: ");
+
+        uint32_t temp_state = keystream_state;
+
+        for (int i = 0; i < 10; i++)
+        {
+            printf("%u ", generate_keystream_byte(&temp_state));
+        }
+
+        printf("\n");
         printf("All bytes deployed over the wire successfully.\n");
     }
     else
