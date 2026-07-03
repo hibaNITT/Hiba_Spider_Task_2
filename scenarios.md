@@ -154,4 +154,7 @@ Even if an attacker captures every packet exchanged over the network, they can o
 
 ## Conclusion
 
-This scenario demonstrates how secure communication can be achieved without ever transmitting the encryption key. By combining the Diffie–Hellman key exchange with a keystream-based XOR encryption mechanism, the system ensures confidentiality while maintaining efficient file transfer. The receiver successfully reconstructs the original file because both parties independently generate the same shared secret and identical keystream, allowing the encrypted data to be decrypted correctly. This approach illustrates the fundamental principles used in many modern secure communication protocols.
+This scenario demonstrates how secure communication can be achieved without ever transmitting the encryption key.
+By combining the Diffie–Hellman key exchange with a keystream-based XOR encryption mechanism, the system ensures confidentiality while maintaining efficient file transfer.
+The receiver successfully reconstructs the original file because both parties independently generate the same shared secret and identical keystream, allowing the encrypted data to be decrypted correctly.
+This approach illustrates the fundamental principles used in many modern secure communication protocols.
