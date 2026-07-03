@@ -114,6 +114,16 @@ void handle_nittalk(char **args)
             generate_shared_secret(received_public_key, private_key);
 
         printf("Shared Secret: %u\n", shared_secret);
+        uint32_t keystream_state = shared_secret;
+
+        printf("Keystream: ");
+
+        for (int i = 0; i < 10; i++)
+        {
+            printf("%u ", generate_keystream_byte(&keystream_state));
+        }
+
+        printf("\n");
 
         // ===================================================================================
 
@@ -309,6 +319,16 @@ void handle_nittalk(char **args)
 
         printf("Shared Secret: %u\n", shared_secret);
 
+        uint32_t keystream_state = shared_secret;
+
+        printf("Keystream: ");
+
+        for (int i = 0; i < 10; i++)
+        {
+            printf("%u ", generate_keystream_byte(&keystream_state));
+        }
+
+        printf("\n");
         // ====================================================================================
 
         // Blast the header onto the wire

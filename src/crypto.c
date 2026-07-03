@@ -58,3 +58,10 @@ uint32_t generate_shared_secret(
         private_key,
         PRIME);
 }
+
+uint8_t generate_keystream_byte(uint32_t *state)
+{
+    *state = (*state * 1664525u) + 1013904223u;
+
+    return (uint8_t)(*state & 0xFF);
+}

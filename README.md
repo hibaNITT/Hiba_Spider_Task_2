@@ -292,3 +292,27 @@ Receiver
 Shared Secret: 1571
 
 If they're the same, the Diffie–Hellman exchange is working.
+
+## Step 2- testing
+
+Test
+
+Compile:
+
+make
+
+Run sender and receiver again.
+
+Expected
+
+Sender:
+
+Shared Secret: 1571
+Keystream: 186 209 252 43 142 149 240 ...
+
+Receiver:
+
+Shared Secret: 1571
+Keystream: 186 209 252 43 142 149 240 ...
+
+The entire sequence should match.

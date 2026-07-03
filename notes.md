@@ -308,3 +308,72 @@ To prevent any cross-architecture parsing issues, we will use standard network p
 Tiny testing prime: $p = 9973$
 
 Base generator: $g = 5$
+
+What Step 2 does
+
+The assignment asks us to generate a keystream from the shared secret.
+
+Our plan for Step 2
+
+We'll implement a simple Linear Congruential Generator (LCG).
+
+The formula is:
+
+next = (a × current + c) mod m
+
+where:
+
+current starts as the shared secret,
+a, c, and m are fixed constants.
+
+Each call gives us the next pseudorandom number, and we'll use its lowest 8 bits as the next keystream byte.
+
+Why use an LCG?
+
+The assignment allows a simple pseudorandom generator such as an LCG. It's:
+
+easy to implement,
+deterministic (same seed → same sequence),
+and sufficient for this educational task.
+
+What is a Keystream?
+
+Right now both sender and receiver have:
+
+Shared Secret = 1571
+
+If we use only this number to encrypt every byte:
+
+Byte1 XOR 1571
+Byte2 XOR 1571
+Byte3 XOR 1571
+...
+
+it's insecure and also inconvenient because we're processing the file one byte at a time.
+
+Instead, we generate a sequence like:
+
+1571 (seed)
+↓
+92
+↓
+13
+↓
+244
+↓
+87
+↓
+166
+...
+
+Each file byte gets XORed with one keystream byte.
+
+Since both computers start with the same seed (1571), they'll generate the exact same sequence.
+
+How do we generate it?
+
+We'll use a Linear Congruential Generator (LCG).
+
+Formula:
+
+next = (A × current + C) mod M

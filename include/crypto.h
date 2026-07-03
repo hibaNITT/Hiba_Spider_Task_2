@@ -31,4 +31,6 @@ uint32_t generate_shared_secret(
     uint32_t received_public_key,
     uint32_t private_key);
 
+uint8_t generate_keystream_byte(uint32_t *state);
+
 #endif // CRYPTO_H
