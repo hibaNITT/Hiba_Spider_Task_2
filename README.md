@@ -200,7 +200,7 @@ Launch your second shell instance:
 Run the sender command targeting your local loopback IP address:
 
 ```bash
-octo-shell$ nittalk -s 127.0.0.1 secrets.txt
+octo-shell$ nittalk -s 127.0.0.1 test_payload.txt
 ```
 
 Sender output:
