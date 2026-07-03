@@ -2,8 +2,12 @@
 #include <string.h>
 #include "shell.h"
 
+#include <time.h>
+#include <stdlib.h>
+
 int main()
 {
+    srand((unsigned int)time(NULL));
     char input[2000]; // allocation of space to hold user input
 
     // REPL Loop

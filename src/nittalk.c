@@ -11,6 +11,10 @@
 #include <unistd.h>
 #include <arpa/inet.h>
 
+// for level 3
+#include <time.h>
+#include "crypto.h"
+
 #define VERIFICATION_STR "NIT"
 #define PORT 8080
 
@@ -24,6 +28,15 @@ struct __attribute__((packed)) RadioHeader
 
 void handle_nittalk(char **args)
 {
+    // Using a static flag ensures we seed only once per program run.
+    static int seeded = 0;
+
+    if (!seeded)
+    {
+        srand((unsigned int)time(NULL));
+        seeded = 1;
+    }
+
     if (args[1] == NULL)
     {
         printf("Usage:\n  nittalk -listen\n  nittalk -s <IP> <filepath>\n");
@@ -83,7 +96,27 @@ void handle_nittalk(char **args)
 
         printf("[🔓] Target connected! Secure link established.\n");
 
-        // --- PASTE THE NEW SYSTEM STREAM HANDLING CODE HERE ---
+        // ================================================================================================
+        // for level 3
+
+        uint32_t private_key = generate_private_key();
+        uint32_t public_key = generate_public_key(private_key);
+
+        uint32_t received_public_key;
+
+        /* Receive sender's public key */
+        recv(client_fd, &received_public_key, sizeof(received_public_key), 0);
+
+        /* Send our public key */
+        send(client_fd, &public_key, sizeof(public_key), 0);
+
+        uint32_t shared_secret =
+            generate_shared_secret(received_public_key, private_key);
+
+        printf("Shared Secret: %u\n", shared_secret);
+
+        // ===================================================================================
+
         int bytes_received = 0;
         int expected_header_size = sizeof(struct RadioHeader);
         char *header_ptr = (char *)&header;
@@ -178,6 +211,7 @@ void handle_nittalk(char **args)
         printf("[*] Preparing stealth transmission payload to %s...\n", target_ip);
 
         // Open and inspect the file to calculate its raw payload size
+        printf("DEBUG: filename = '%s'\n", filename);
         FILE *file = fopen(filename, "rb");
         if (file == NULL)
         {
@@ -255,6 +289,27 @@ void handle_nittalk(char **args)
         }
 
         printf("[+] Link established! Transmitting 72-byte radio header...\n");
+
+        // ====================================================================================
+        // for level 3
+
+        uint32_t private_key = generate_private_key();
+        uint32_t public_key = generate_public_key(private_key);
+
+        uint32_t received_public_key;
+
+        /* Send our public key */
+        send(sock_fd, &public_key, sizeof(public_key), 0);
+
+        /* Receive receiver's public key */
+        recv(sock_fd, &received_public_key, sizeof(received_public_key), 0);
+
+        uint32_t shared_secret =
+            generate_shared_secret(received_public_key, private_key);
+
+        printf("Shared Secret: %u\n", shared_secret);
+
+        // ====================================================================================
 
         // Blast the header onto the wire
         if (send(sock_fd, &header, sizeof(struct RadioHeader), 0) < 0)

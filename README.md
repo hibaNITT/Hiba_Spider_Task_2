@@ -237,3 +237,58 @@ cat test_payload.txt
 
 Would you like me to also add **syntax highlighting for commands vs. outputs** (like `bash` for commands and `plaintext` for logs) throughout the MD so it looks polished in GitHub?
 ```
+
+# Level 3
+
+## Step 1 Testing Guide (Diffie–Hellman Key Exchange)
+
+Terminal 1 (Receiver)
+./octo-shell
+nittalk -listen 4443
+
+Expected:
+
+[📡] Beacon online. Awaiting inbound transmission...
+Terminal 2 (Sender)
+
+Create a small test file:
+
+echo "Hi" > test.txt
+
+Run:
+
+./octo-shell
+nittalk -s 127.0.0.1 test.txt
+
+(or use your updated syntax if you've modified the parser).
+
+Expected sender output:
+
+Preparing transmission...
+Connection established...
+Shared Secret: ####
+Header transmitted...
+File transmitted successfully.
+
+Expected receiver output:
+
+Target connected...
+Shared Secret: ####
+Header verified...
+Receiving file...
+Transmission complete.
+✅ Verify
+Both terminals print a Shared Secret.
+The numbers must be identical.
+
+Example:
+
+Sender
+
+Shared Secret: 1571
+
+Receiver
+
+Shared Secret: 1571
+
+If they're the same, the Diffie–Hellman exchange is working.

@@ -4,6 +4,8 @@
 
 // Implementing Modular Exponentiation Helper
 #include "crypto.h"
+#include <stdlib.h>
+#include <time.h>
 
 uint64_t modular_exponentiation(uint64_t base, uint64_t exp, uint64_t mod)
 {
@@ -26,4 +28,33 @@ uint64_t modular_exponentiation(uint64_t base, uint64_t exp, uint64_t mod)
         exp >>= 1;
     }
     return result;
+}
+
+#define PRIME 9973
+#define GENERATOR 5
+
+// Different every execution.
+uint32_t generate_private_key(void)
+{
+    return (rand() % (PRIME - 2000)) + 1000;
+}
+
+// Computes g^private mod p using our existing modular exponentiation function.
+uint32_t generate_public_key(uint32_t private_key)
+{
+    return modular_exponentiation(
+        GENERATOR,
+        private_key,
+        PRIME);
+}
+
+// Computes received_public^private mod p Again using our existing function.
+uint32_t generate_shared_secret(
+    uint32_t received_public_key,
+    uint32_t private_key)
+{
+    return modular_exponentiation(
+        received_public_key,
+        private_key,
+        PRIME);
 }
