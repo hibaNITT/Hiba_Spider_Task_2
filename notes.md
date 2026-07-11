@@ -414,8 +414,8 @@ Features:
 
 Packet Header (exactly 72 bytes)
 Magic Bytes (4)
-Filename    (64)
-File Size   (4)
+Filename (64)
+File Size (4)
 
 Need to:
 
@@ -582,17 +582,17 @@ main.c
 File
 nittalk.c
 File
-here 
+here
 
 Perfect. I have all four source files now and have gone through them in detail.
 
 Here's the current status of your Cybersecurity task.
 
-Task	Status	Notes
-Level 1 Shell	✅ Complete	REPL, fork, execvp, cd, exit all implemented.
-Level 2 File Transfer	🟡 ~85% Complete	Architecture is correct, but there are a few compile/runtime issues.
-Level 3 Encryption	🟡 ~40% Complete	Diffie-Hellman handshake has been started, but encryption itself is not implemented.
-Level 4 Tripwire IDS	❌ Not started	Entire standalone program still remains.
+Task Status Notes
+Level 1 Shell ✅ Complete REPL, fork, execvp, cd, exit all implemented.
+Level 2 File Transfer 🟡 ~85% Complete Architecture is correct, but there are a few compile/runtime issues.
+Level 3 Encryption 🟡 ~40% Complete Diffie-Hellman handshake has been started, but encryption itself is not implemented.
+Level 4 Tripwire IDS ❌ Not started Entire standalone program still remains.
 What is already done
 ✅ Shell
 REPL
@@ -708,8 +708,7 @@ Required by Level 3 but missing.
 
 Need something like
 
-uint8_t next_key_byte();
-6. No XOR encryption
+uint8_t next_key_byte(); 6. No XOR encryption
 
 Need
 
@@ -781,7 +780,6 @@ That order minimizes debugging because you'll have a working encrypted shell bef
 I can guide you through each remaining step with minimal changes to your existing code rather than rewriting it from scratch.
 
 ok lets strat. while providing code tell me where to paste itt. and also explain any concepts that i need to know along the way
-
 
 Sounds good. We'll do this like a senior developer mentoring a teammate rather than just dumping code.
 
@@ -1099,7 +1097,7 @@ Where to paste
 Open nittalk.c.
 
 1. Add these includes at the top
-#include <time.h>
+   #include <time.h>
 
 and
 
@@ -1115,8 +1113,8 @@ static int seeded = 0;
 
 if (!seeded)
 {
-    srand((unsigned int)time(NULL));
-    seeded = 1;
+srand((unsigned int)time(NULL));
+seeded = 1;
 }
 Why use static?
 
@@ -1134,8 +1132,7 @@ uint32_t a = 243;
 
 Replace it with:
 
-uint32_t a = (rand() % 9000) + 1000;
-4. Replace the receiver's private key
+uint32_t a = (rand() % 9000) + 1000; 4. Replace the receiver's private key
 
 Find:
 
@@ -1272,14 +1269,14 @@ At the end of this step, we should be able to print something like:
 Sender
 
 Private Key : 4812
-Public Key  : 7245
-Shared Key  : 5361
+Public Key : 7245
+Shared Key : 5361
 
 Receiver
 
 Private Key : 3178
-Public Key  : 6912
-Shared Key  : 5361
+Public Key : 6912
+Shared Key : 5361
 
 Notice the shared key is identical on both sides. That's how we'll know Step 1 works.
 
@@ -1306,15 +1303,15 @@ No file encryption yet—we'll just verify that both sides generate the exact sa
 Finally, we'll do:
 
 Plain File
-      ↓
+↓
 XOR with keystream
-      ↓
+↓
 Ciphertext
-      ↓
+↓
 Network
-      ↓
+↓
 XOR with same keystream
-      ↓
+↓
 Original File
 
 This is the only step where we modify the file bytes.
@@ -1430,7 +1427,7 @@ You already have
 
 uint64_t modular_exponentiation(...)
 {
-    ...
+...
 }
 
 That function is perfect.
@@ -1443,31 +1440,31 @@ Paste this immediately BELOW it
 
 uint32_t generate_private_key(void)
 {
-    return (rand() % (PRIME - 2000)) + 1000;
+return (rand() % (PRIME - 2000)) + 1000;
 }
 
 uint32_t generate_public_key(uint32_t private_key)
 {
-    return modular_exponentiation(
-        GENERATOR,
-        private_key,
-        PRIME
-    );
+return modular_exponentiation(
+GENERATOR,
+private_key,
+PRIME
+);
 }
 
 uint32_t generate_shared_secret(
-        uint32_t received_public_key,
-        uint32_t private_key)
+uint32_t received_public_key,
+uint32_t private_key)
 {
-    return modular_exponentiation(
-        received_public_key,
-        private_key,
-        PRIME
-    );
+return modular_exponentiation(
+received_public_key,
+private_key,
+PRIME
+);
 }
 Why these functions?
-1.
-generate_private_key()
+
+1.  generate_private_key()
 
 Produces
 
@@ -1475,8 +1472,7 @@ Produces
 
 Different every execution.
 
-2.
-generate_public_key()
+2.  generate_public_key()
 
 Computes
 
@@ -1484,8 +1480,7 @@ g^private mod p
 
 using your existing modular exponentiation function.
 
-3.
-generate_shared_secret()
+3.  generate_shared_secret()
 
 Computes
 
@@ -1569,8 +1564,8 @@ uint32_t generate_private_key(void);
 uint32_t generate_public_key(uint32_t private_key);
 
 uint32_t generate_shared_secret(
-    uint32_t received_public_key,
-    uint32_t private_key);
+uint32_t received_public_key,
+uint32_t private_key);
 Compile
 
 Run:
@@ -1617,21 +1612,21 @@ Before sending the file, the sender and receiver perform a "handshake."
 Current flow:
 
 Connect
-   ↓
+↓
 Send header
-   ↓
+↓
 Send file
 
 New flow:
 
 Connect
-   ↓
+↓
 Exchange public keys
-   ↓
+↓
 Compute shared secret
-   ↓
+↓
 Send header
-   ↓
+↓
 Send file
 
 Nothing else changes.
@@ -1659,9 +1654,10 @@ Example:
 
 int main(void)
 {
-    srand((unsigned int)time(NULL));
+srand((unsigned int)time(NULL));
 
     // existing code...
+
 }
 Why?
 
@@ -1684,14 +1680,14 @@ uint32_t public_key = generate_public_key(private_key);
 
 uint32_t received_public_key;
 
-/* Send our public key */
+/_ Send our public key _/
 send(sock_fd, &public_key, sizeof(public_key), 0);
 
-/* Receive receiver's public key */
+/_ Receive receiver's public key _/
 recv(sock_fd, &received_public_key, sizeof(received_public_key), 0);
 
 uint32_t shared_secret =
-    generate_shared_secret(received_public_key, private_key);
+generate_shared_secret(received_public_key, private_key);
 
 printf("Shared Secret: %u\n", shared_secret);
 
@@ -1710,14 +1706,14 @@ uint32_t public_key = generate_public_key(private_key);
 
 uint32_t received_public_key;
 
-/* Receive sender's public key */
+/_ Receive sender's public key _/
 recv(client_fd, &received_public_key, sizeof(received_public_key), 0);
 
-/* Send our public key */
+/_ Send our public key _/
 send(client_fd, &public_key, sizeof(public_key), 0);
 
 uint32_t shared_secret =
-    generate_shared_secret(received_public_key, private_key);
+generate_shared_secret(received_public_key, private_key);
 
 printf("Shared Secret: %u\n", shared_secret);
 
@@ -1765,9 +1761,9 @@ If you hit any compilation error, paste it here exactly, and we'll fix it togeth
 /main.o
 src/main.c: In function ‘main’:
 src/main.c:9:5: error: implicit declaration of function ‘srand’ [-Wimplicit-function-declaration]
-    9 |     srand((unsigned int)time(NULL));
-      |     ^~~~~
-make: *** [Makefile:13: src/main.o] Error 1
+9 | srand((unsigned int)time(NULL));
+| ^~~~~
+make: \*\*\* [Makefile:13: src/main.o] Error 1
 
 Perfect—that error is straightforward.
 
@@ -1831,14 +1827,14 @@ gcc -Wall -Wextra -g -Iinclude -c src/main.c -o src/main.o
 gcc -Wall -Wextra -g -Iinclude -c src/nittalk.c -o src/nittalk.o
 src/nittalk.c: In function ‘handle_nittalk’:
 src/nittalk.c:101:32: error: implicit declaration of function ‘generate_private_key’ [-Wimplicit-function-declaration]
-  101 |       uint32_t private_key = generate_private_key();
-      |                              ^~~~~~~~~~~~~~~~~~~~
+101 | uint32_t private_key = generate_private_key();
+| ^~~~~~~~~~~~~~~~~~~~
 src/nittalk.c:102:31: error: implicit declaration of function ‘generate_public_key’ [-Wimplicit-function-declaration]
-  102 |        uint32_t public_key = generate_public_key(private_key);
-      |                              ^~~~~~~~~~~~~~~~~~~
+102 | uint32_t public_key = generate_public_key(private_key);
+| ^~~~~~~~~~~~~~~~~~~
 src/nittalk.c:113:13: error: implicit declaration of function ‘generate_shared_secret’ [-Wimplicit-function-declaration]
-  113 |             generate_shared_secret(received_public_key, private_key);
-      |             ^~~~~~~~~~~~~~~~~~~~~~
+113 | generate_shared_secret(received_public_key, private_key);
+| ^~~~~~~~~~~~~~~~~~~~~~
 
 Excellent! This is actually good news. The compiler is telling us exactly what's wrong.
 
@@ -1894,7 +1890,7 @@ math.c
 
 int add(int a, int b)
 {
-    return a + b;
+return a + b;
 }
 
 and
@@ -1903,7 +1899,7 @@ main.c
 
 int main()
 {
-    add(2,3);
+add(2,3);
 }
 
 Without a declaration, the compiler says
@@ -1930,7 +1926,7 @@ The first ~15 lines of src/nittalk.c
 We'll fix it in one go and then continue with the key exchange.
 
 // By defining the global public parameters (DH_PRIME and DH_GENERATOR) and the function prototype for modular_exponentiation inside crypto.h,
-//  you allow any other file (like src/nittalk.c) to use these cryptographic parameters simply by adding #include "crypto.h". The other files don't need to know how the math works; they just need to know it exists.
+// you allow any other file (like src/nittalk.c) to use these cryptographic parameters simply by adding #include "crypto.h". The other files don't need to know how the math works; they just need to know it exists.
 
 // How does the compiler know:
 
@@ -1945,24 +1941,25 @@ We'll fix it in one go and then continue with the key exchange.
 #include <stddef.h>
 
 // Global Public Parameters for Diffie-Hellman Key Exchange
-#define DH_PRIME 9973  // A small prime for demonstration; normally much larger
+#define DH_PRIME 9973 // A small prime for demonstration; normally much larger
 #define DH_GENERATOR 5 // Generator base 'g'
 
-/**
- * @brief Computes (base^exp) % mod safely without 64-bit integer overflow.
- * Uses the Square-and-Multiply (Binary Exponentiation) method.
- */
-uint64_t modular_exponentiation(uint64_t base, uint64_t exp, uint64_t mod);
+/\*\*
+
+- @brief Computes (base^exp) % mod safely without 64-bit integer overflow.
+- Uses the Square-and-Multiply (Binary Exponentiation) method.
+  \*/
+  uint64_t modular_exponentiation(uint64_t base, uint64_t exp, uint64_t mod);
 
 uint32_t generate_private_key(void);
 
 uint32_t generate_public_key(uint32_t private_key);
 
 uint32_t generate_shared_secret(
-    uint32_t received_public_key,
-    uint32_t private_key);
+uint32_t received_public_key,
+uint32_t private_key);
 
-#endif // CRYPTO_H     
+#endif // CRYPTO_H
 
 Your crypto.h is correct. 👍 The prototypes are there.
 
@@ -2060,12 +2057,12 @@ After exchanging these public keys, both compute the same shared secret.
 So our network flow becomes:
 
 TCP connection established
-        ↓
+↓
 Sender ------ Public Key -----> Receiver
 Sender <----- Public Key ------ Receiver
-        ↓
+↓
 Both compute shared secret
-        ↓
+↓
 Continue normal file transfer
 
 The rest of your file transfer remains unchanged.
@@ -2082,13 +2079,13 @@ It will look something like:
 
 if(connect(...) < 0)
 {
-    ...
+...
 }
 
 or immediately after that block.
 
 Paste this right after a successful connection, before sending the file header:
-/* ---------- Diffie-Hellman Key Exchange ---------- */
+/_ ---------- Diffie-Hellman Key Exchange ---------- _/
 
 uint32_t private_key = generate_private_key();
 uint32_t public_key = generate_public_key(private_key);
@@ -2103,11 +2100,11 @@ recv(sock_fd, &received_network_key, sizeof(received_network_key), 0);
 uint32_t received_public_key = ntohl(received_network_key);
 
 uint32_t shared_secret =
-    generate_shared_secret(received_public_key, private_key);
+generate_shared_secret(received_public_key, private_key);
 
 printf("[Sender] Shared Secret: %u\n", shared_secret);
 
-/* ----------------------------------------------- */
+/_ ----------------------------------------------- _/
 ⚠️ Important
 
 I wrote:
@@ -2185,9 +2182,9 @@ Let's look at your current flow.
 
 Current sender
 connect()
-      ↓
+↓
 send header
-      ↓
+↓
 send file
 
 There is no point where the sender tells the receiver its public key.
@@ -2199,13 +2196,13 @@ What Diffie–Hellman requires
 Immediately after the TCP connection is established:
 
 connect()
-      ↓
+↓
 Generate private key
-      ↓
+↓
 Generate public key
-      ↓
-Send public key  ------------>
-                     Receiver
+↓
+Send public key ------------>
+Receiver
 
 Then the receiver sends its public key back.
 
@@ -2227,13 +2224,13 @@ The file header and file data are sent over the same TCP connection.
 So the order becomes:
 
 TCP connection
-        ↓
+↓
 Key Exchange
-        ↓
+↓
 Shared Secret
-        ↓
+↓
 Header
-        ↓
+↓
 Encrypted File
 
 If we waited until after sending the file, it would be too late—we wouldn't have the key needed to encrypt it.
@@ -2265,14 +2262,14 @@ we already modified sender and listener ryt
 Yes, we did. Good catch. Let's recap exactly where we are so we don't accidentally repeat work.
 
 ✅ Completed so far
+
 1. crypto.c
 
 We added:
 
 generate_private_key()
 generate_public_key()
-generate_shared_secret()
-2. crypto.h
+generate_shared_secret() 2. crypto.h
 
 We added the function prototypes.
 
@@ -2281,7 +2278,7 @@ We added the function prototypes.
 We added the sender-side and receiver-side Diffie–Hellman handshake code.
 
 4. Project compiles successfully.
-So what is left in Level 3 Step 1?
+   So what is left in Level 3 Step 1?
 
 Now we test it.
 
@@ -2303,13 +2300,13 @@ Both terminals should print something like:
 Sender
 
 Private Key : 4321
-Public Key  : 8765
+Public Key : 8765
 Shared Secret : 1234
 
 Receiver
 
 Private Key : 7654
-Public Key  : 3456
+Public Key : 3456
 Shared Secret : 1234
 
 The important part is:
@@ -2342,7 +2339,7 @@ octo-shell$ nittalk -s 127.0.0.1 -f test.txt 4443
 octo-shell$ nittalk -s 127.0.0.1 -f test.txt 4443
 [*] Preparing stealth transmission payload to 127.0.0.1...
 [!] Error opening local file: No such file or directory
-octo-shell$ 
+octo-shell$
 
 This is actually not an encryption problem. It's happening before the key exchange even starts.
 
@@ -2438,7 +2435,7 @@ Step 1
 
 In nittalk.c, find the line just before:
 
-FILE *fp = fopen(filename, "rb");
+FILE \*fp = fopen(filename, "rb");
 
 (or whatever variable name you're using).
 
@@ -2497,7 +2494,7 @@ About 30–40 lines is enough.
 
 Once I see that code, we'll pinpoint the bug instead of guessing.
 
-FILE *fp = fopen(filename, "rb"); where shud i search for this
+FILE \*fp = fopen(filename, "rb"); where shud i search for this
 
 Good question. Since I don't have your file open line-by-line, let's locate it together.
 
@@ -2512,7 +2509,7 @@ fopen(
 
 You should find a line similar to one of these:
 
-FILE *fp = fopen(filename, "rb");
+FILE \*fp = fopen(filename, "rb");
 
 or
 
@@ -2520,7 +2517,7 @@ fp = fopen(file_name, "rb");
 
 or
 
-FILE *file = fopen(...);
+FILE \*file = fopen(...);
 If Ctrl + F finds nothing
 
 Search for:
@@ -2596,14 +2593,14 @@ Why is this so important?
 
 The whole idea of Diffie–Hellman is:
 
-Sender                    Receiver
+Sender Receiver
 
-Private: 4832             Private: 7291
-     ↓                         ↓
-Public: 1256  --------->        |
-           <---------  Public: 3478
-     ↓                         ↓
-Shared Secret: 1571    Shared Secret: 1571
+Private: 4832 Private: 7291
+↓ ↓
+Public: 1256 ---------> |
+<--------- Public: 3478
+↓ ↓
+Shared Secret: 1571 Shared Secret: 1571
 
 Neither computer sends 1571 over the network. They compute it independently. If both terminals print the same value, we've successfully completed the assignment's Level 3, Step 1.
 
@@ -2620,7 +2617,7 @@ Shared Secret: 1571
 [*] Synchronizing stream windows... Awaiting 72-byte header...
 [🔓] Header Verified! Incoming File: 'test.txt' | Size: 4 bytes
 [📥] Downloading payload streams...
- Success! File transmission complete. Saved as 'test.txt' (4/4 bytes received)
+Success! File transmission complete. Saved as 'test.txt' (4/4 bytes received)
 
 🎉 Excellent!
 
@@ -2628,10 +2625,10 @@ This is exactly what we wanted.
 
 Let's verify:
 
-Sender	Receiver	Status
-Shared Secret: 1571	Shared Secret: 1571	✅ Match
-Header sent	Header received	✅
-File sent	File received	✅
+Sender Receiver Status
+Shared Secret: 1571 Shared Secret: 1571 ✅ Match
+Header sent Header received ✅
+File sent File received ✅
 
 This means your Diffie–Hellman key exchange is working correctly. Both sides independently derived the same shared secret without transmitting it. That completes Level 3 – Step 1 from the assignment.
 
@@ -2691,12 +2688,12 @@ One byte per file byte.
 
 So the encryption becomes:
 
-Plain	Key	Cipher
-72	42	98
-69	198	131
-76	17	93
-76	91	23
-79	233	166
+Plain Key Cipher
+72 42 98
+69 198 131
+76 17 93
+76 91 23
+79 233 166
 
 Because both sides start with the same shared secret (1571), they both generate the same keystream.
 
@@ -2728,7 +2725,7 @@ Next step
 
 We'll add one new function to crypto.c:
 
-uint8_t generate_keystream_byte(uint32_t *state);
+uint8_t generate_keystream_byte(uint32_t \*state);
 
 This function will:
 
@@ -2934,15 +2931,15 @@ it's insecure and also inconvenient because we're processing the file one byte a
 Instead, we generate a sequence like:
 
 1571 (seed)
- ↓
+↓
 92
- ↓
+↓
 13
- ↓
+↓
 244
- ↓
+↓
 87
- ↓
+↓
 166
 ...
 
@@ -2982,15 +2979,16 @@ Scroll below generate_shared_secret().
 
 Paste:
 
-uint8_t generate_keystream_byte(uint32_t *state)
+uint8*t generate_keystream_byte(uint32_t *state)
 {
-    *state = (*state * 1664525u) + 1013904223u;
+_state = (\_state _ 1664525u) + 1013904223u;
 
     return (uint8_t)(*state & 0xFF);
+
 }
 Let's understand every line
 Function prototype
-uint8_t generate_keystream_byte(uint32_t *state)
+uint8_t generate_keystream_byte(uint32_t \*state)
 
 Returns:
 
@@ -2998,7 +2996,7 @@ Returns:
 
 because we're encrypting one byte at a time.
 
-Why uint32_t *state?
+Why uint32_t \*state?
 
 Notice it's a pointer.
 
@@ -3019,7 +3017,7 @@ The function must update the state.
 Passing a pointer allows it to modify the original variable.
 
 The LCG
-*state = (*state * 1664525u) + 1013904223u;
+*state = (*state \* 1664525u) + 1013904223u;
 
 Suppose
 
@@ -3061,7 +3059,7 @@ which equals
 
 So
 
-return (uint8_t)(*state & 0xFF);
+return (uint8_t)(\*state & 0xFF);
 
 returns a value between:
 
@@ -3077,7 +3075,7 @@ Open crypto.h.
 
 Below your other function declarations, add:
 
-uint8_t generate_keystream_byte(uint32_t *state);
+uint8_t generate_keystream_byte(uint32_t \*state);
 Step 2.3 — Compile
 
 Run:
@@ -3107,7 +3105,7 @@ Step 2.1 – Sender
 In nittalk.c, locate where you compute the shared secret:
 
 uint32_t shared_secret =
-    generate_shared_secret(received_public_key, private_key);
+generate_shared_secret(received_public_key, private_key);
 
 Immediately below it, paste:
 
@@ -3117,7 +3115,7 @@ printf("Keystream: ");
 
 for (int i = 0; i < 10; i++)
 {
-    printf("%u ", generate_keystream_byte(&keystream_state));
+printf("%u ", generate_keystream_byte(&keystream_state));
 }
 
 printf("\n");
@@ -3126,7 +3124,7 @@ Step 2.2 – Receiver
 Find the corresponding place where the receiver computes:
 
 uint32_t shared_secret =
-    generate_shared_secret(received_public_key, private_key);
+generate_shared_secret(received_public_key, private_key);
 
 Immediately below it, paste the same code:
 
@@ -3136,7 +3134,7 @@ printf("Keystream: ");
 
 for (int i = 0; i < 10; i++)
 {
-    printf("%u ", generate_keystream_byte(&keystream_state));
+printf("%u ", generate_keystream_byte(&keystream_state));
 }
 
 printf("\n");
@@ -3167,9 +3165,9 @@ Why are we testing this?
 This confirms that:
 
 Same Shared Secret
-        ↓
+↓
 Same LCG State
-        ↓
+↓
 Same Keystream
 
 If the keystream matches, then XOR encryption will automatically work because both sides will XOR with the exact same byte sequence.
@@ -3189,17 +3187,17 @@ File → send() → Network → recv() → File
 We'll change it to:
 
 File
- ↓
+↓
 XOR with keystream
- ↓
+↓
 send()
- ↓
+↓
 Network
- ↓
+↓
 recv()
- ↓
+↓
 XOR with same keystream
- ↓
+↓
 Original File
 
 Because:
@@ -3209,3 +3207,60 @@ X XOR K XOR K = X
 The same operation encrypts and decrypts.
 
 Step 3.1 – Encrypt on the Sender
+
+# Level 4
+
+Tripwire Intrusion Detection System (IDS)
+
+Welcome back, operative. You have successfully secured your communications; now it is time to secure your perimeter. Since the terrorists are actively scanning the network, we need a
+
+Tripwire: a passive sensor that watches every packet entering your network interface. If a packet doesn't come from your teammate, it’s a probe, and we need to alert you instantly.
+
+1. The Concept: Raw Sockets vs. Standard Sockets
+   When you used socket(AF_INET, SOCK_STREAM, 0) for nittalk, you were talking to the TCP/IP stack. The OS manages everything for you: it handles the three-way handshake, retransmits lost packets, and delivers only the application data to your program.
+
+For a Tripwire (IDS), that is useless. We don't want to wait for a connection to be established—we want to see the packet the moment it arrives at your network card, even if it’s just a probe from an adversary.
+
+Standard Socket (SOCK_STREAM): "Hey OS, give me the data once the connection is verified."
+
+Raw Socket (SOCK_RAW): "Hey OS, get out of the way. Give me the entire packet, including the IP headers, exactly as it arrived on the wire."
+
+2. The Anatomy of an IP Packet
+   When you read from a SOCK_RAW, you receive a byte buffer. You don't have a library function to tell you "this is an IP address." You have a raw block of memory. To read it, we map a C struct directly onto that memory.
+
+3. Step-by-Step: The Tripwire Logic
+   We will build src/tripwire.c following this cycle:
+
+Create Socket: socket(AF_INET, SOCK_RAW, IPPROTO_TCP). This tells the kernel to capture all TCP traffic. (Must run as sudo).
+
+The Loop: A while(1) block that calls recvfrom() to snatch incoming packets.
+
+The Cast: Treat the buffer as a struct iphdr\*.
+
+The Filter: Extract the saddr (Source IP) from the struct.
+
+The Check: Compare this against your teammate's IP.
+
+The Alarm: If it doesn't match, trigger a red-alert print.
+
+1. What is sudo?
+   sudo stands for "SuperUser DO." It is a command that allows a permitted user to execute a command with the security privileges of another user—specifically, the root (superuser).
+
+The Root User: In Linux, "root" is the god-mode account. It has absolute power over the entire system.
+
+Security Principle: Linux is designed to prevent regular users from messing up the system. You normally operate as a standard user (hibaf) who cannot modify system files or access low-level hardware directly. This is a safety feature; if you run a malicious program as a normal user, it can only mess up your files, not the whole OS.
+
+2. Why are we using it for tripwire?
+   We are using sudo because of the socket(AF_INET, SOCK_RAW, IPPROTO_TCP) call.
+
+When you use SOCK_RAW, you are telling the kernel: "I want to bypass your standard networking rules and talk directly to the network interface card (NIC) hardware."
+
+Access to Hardware: Raw access is incredibly powerful. A program with raw socket access can sniff private passwords, hijack connections, or spoof identities.
+
+The Restriction: Because this is a massive security risk, the Linux kernel strictly prohibits standard users from opening raw sockets. Only the root user is trusted with this level of access.
+
+step 1
+
+This program acts as a passive network monitor that intercepts raw data directly from your network card, bypassing the operating system’s normal filtering. It works by creating a "raw socket," which acts like a spy in the hallway, grabbing every incoming TCP packet and dumping it into a memory "buffer" for inspection. By overlaying a standard IP header "blueprint" onto that raw data, the program can instantly identify and extract the Source IP address of whoever is sending traffic to your machine. Finally, it uses a translator function to convert those complex binary addresses into readable text, printing them to your screen so you can see exactly who is probing your network in real-time.
+
+Now that your Tripwire is capturing and displaying IP addresses, the next step is to "Arm" it.
