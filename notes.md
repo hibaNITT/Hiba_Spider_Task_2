@@ -3264,3 +3264,17 @@ step 1
 This program acts as a passive network monitor that intercepts raw data directly from your network card, bypassing the operating system’s normal filtering. It works by creating a "raw socket," which acts like a spy in the hallway, grabbing every incoming TCP packet and dumping it into a memory "buffer" for inspection. By overlaying a standard IP header "blueprint" onto that raw data, the program can instantly identify and extract the Source IP address of whoever is sending traffic to your machine. Finally, it uses a translator function to convert those complex binary addresses into readable text, printing them to your screen so you can see exactly who is probing your network in real-time.
 
 Now that your Tripwire is capturing and displaying IP addresses, the next step is to "Arm" it.
+
+Step 2: The "Arming" Process
+Find your Teammate's IP: On their machine, run hostname -I.
+
+Edit src/tripwire.c: Change the TEAMMATE_IP line to match theirs.
+
+Recompile:
+
+Bash
+gcc src/tripwire.c -o bin/tripwire
+Run with Root:
+
+Bash
+sudo ./bin/tripwire

@@ -355,3 +355,127 @@ cat test.txt
 It should print
 
 Hi!
+
+# Level 4
+
+Terminal 1: The Guard (Tripwire)
+This is where you run your detection system.
+
+Compile the code:
+
+Bash
+gcc src/tripwire.c -o bin/tripwire
+Run the Tripwire:
+
+Bash
+sudo ./bin/tripwire
+(The terminal should say "Tripwire Active. Monitoring traffic...")
+
+Terminal 2: The "Friendly" Listener (Receiver)
+This simulates your teammate's machine waiting for a connection.
+
+Open a port to act as the "Receiver":
+
+Bash
+nc -l 8080
+(This terminal will now just blink, waiting for data. Keep it open.)
+
+Terminal 3: The "Teammate" (The Sender)
+This acts as the authorized connection.
+
+Connect to your own machine (Terminal 2) using your IP:
+(Replace [YOUR_IP_ADDRESS] with your actual machine's IP, e.g., 172.17.66.xx. You can find it by typing hostname -I in any terminal).
+
+Bash
+nc [YOUR_IP_ADDRESS] 8080
+Type anything (e.g., "Hello teammate") and hit Enter.
+
+The Verification Checklist
+Check Terminal 1: Do you see Green text saying [*] Authorized traffic from: [YOUR_IP]?
+
+If yes: Your whitelist filter is working perfectly.
+
+Check Terminal 1 (The Intruder Test): Now, keep everything running and go back to Terminal 3. Instead of typing, just press Ctrl+C to close the connection. Then, go to a fourth terminal (or just use one of your existing ones) and run:
+
+Bash
+curl -I https://www.google.com
+Final Check: Did Terminal 1 immediately switch to Red text showing [!] ALERT: Intruder detected!?
+
+If you see Green for the nc connection and Red for the curl command
+
+## Testing with another laptop instead of anothre terminal on the same laptop
+
+Phase 1: Prepare Laptop A (The Sentinel)
+This laptop runs your C code.
+
+Find your IP: Open a terminal and run hostname -I. Note this down (e.g., 172.17.66.10).
+
+Ensure Tripwire is ready:
+
+Bash
+
+# Navigate to your project folder
+
+cd path/to/your/project
+
+# Compile
+
+gcc src/tripwire.c -o bin/tripwire
+
+# Run with sudo
+
+sudo ./bin/tripwire
+Keep this terminal open. It will show the Green/Red alerts.
+
+Phase 2: Setup Laptop B (The Intruder/Teammate)
+we will use a direct method that works even if you don't have WSL installed yet. You can use PowerShell directly, which has built-in networking tools.
+
+Open PowerShell: Search for "PowerShell" in the Start menu, right-click, and Run as Administrator.
+
+Verify connection: Ping Laptop A to ensure they see each other on the Wi-Fi:
+
+PowerShell
+ping [IP_OF_LAPTOP_A]
+(If this fails, ensure both laptops are on the same Wi-Fi and that the "Network Profile" in Windows is set to "Private" rather than "Public".)
+
+Phase 3: The Testing Steps
+Now that you have your two laptops ready, follow these exact steps to see the result.
+
+Test 1: The "Teammate" (Green Alert)
+On Laptop A: You need a process listening for a connection. Run this in a new terminal window:
+
+Bash
+nc -l 8080
+On Laptop B: Run this to connect to Laptop A:
+
+PowerShell
+
+# Use the Netcat equivalent in PowerShell
+
+Test-NetConnection -ComputerName [IP_OF_LAPTOP_A] -Port 8080
+(Or, if you have netcat installed on Laptop B, just use nc [IP_OF_LAPTOP_A] 8080).
+
+Watch Laptop A: The tripwire terminal should print a Green message: [*] Authorized traffic from: [IP_OF_LAPTOP_B].
+
+Test 2: The "Intruder" (Red Alert)
+On Laptop A: Keep the tripwire running.
+
+On Laptop B: Generate unauthorized traffic by trying to connect to a port that you aren't using:
+
+Bash
+
+# Try connecting to port 22 (SSH) or any random port
+
+Test-NetConnection -ComputerName [IP_OF_LAPTOP_A] -Port 22
+Watch Laptop A: The tripwire terminal should immediately print a Red message: [!] ALERT: Intruder detected! Source: [IP_OF_LAPTOP_B].
+
+Critical Checklist for Success:
+Same Network: Both laptops must be on the same Wi-Fi. If you are using a mobile hotspot, make sure both are connected to the same phone.
+
+Firewall: If you get "Request Timed Out" or "Connection Refused," Laptop A's Windows Firewall is likely blocking the incoming traffic.
+
+Quickest test: Temporarily turn off the firewall on Laptop A (Control Panel > System and Security > Windows Defender Firewall > Turn Windows Defender Firewall on or off). Don't forget to turn it back on after your test!
+
+IP Addressing: Always use hostname -I (on Linux) or ipconfig (on Windows) to get the correct current IP, as they can change if you reconnect to Wi-Fi.
+
+Does your ping command succeed between the two laptops? If ping works, the Tripwire test will definitely work.

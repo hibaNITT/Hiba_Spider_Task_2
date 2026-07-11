@@ -6,6 +6,7 @@
 #include <arpa/inet.h>  // Contains 'inet_ntoa' to make IPs readable
 
 #define BUFFER_SIZE 65536 // The maximum size of an IP packet (64KB)
+#define TEAMMATE_IP "172.17.66.30"
 
 int main()
 {
@@ -25,7 +26,6 @@ int main()
     }
 
     printf("Tripwire Active. Monitoring traffic...\n");
-
     while (1)
     {
         // Wait for incoming packet
@@ -34,12 +34,24 @@ int main()
         // Cast the buffer to an IP header struct
         struct iphdr *iph = (struct iphdr *)buffer;
 
-        // Print the Source IP address
+        // Prepare the source address
         struct sockaddr_in source;
         memset(&source, 0, sizeof(source));
         source.sin_addr.s_addr = iph->saddr;
 
-        printf("Incoming packet from: %s\n", inet_ntoa(source.sin_addr));
+        char *sender_ip = inet_ntoa(source.sin_addr);
+
+        // Compare the incoming IP with your teammate's IP
+        if (strcmp(sender_ip, TEAMMATE_IP) == 0)
+        {
+            // MATCH FOUND: Print in Green
+            printf("\033[0;32m[*] Authorized traffic from: %s\033[0m\n", sender_ip);
+        }
+        else
+        {
+            // NO MATCH: Print in Red
+            printf("\033[1;31m[!] ALERT: Intruder detected! Source: %s\033[0m\n", sender_ip);
+        }
     }
 
     return 0;
