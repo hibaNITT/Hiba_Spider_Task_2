@@ -9,6 +9,14 @@ Spider_Task_2/
 
 [Guide](https://hibanitt.github.io/spider-task-2-website/)
 
+# Demo videos
+
+[Level 1](https://drive.google.com/file/d/1ECC0w0aHqCJPXbryqg4ybzVGYhxjXL-D/view?usp=sharing)
+
+[Level 2 & 3](https://drive.google.com/file/d/1XaxarL0JlMlD31t3QKRorK5TYJlz15VD/view?usp=sharing)
+
+[Level 4](https://drive.google.com/file/d/1b3Pidx3tbQF4EtJnq291Zx7GBuxAgtn0/view?usp=sharing)
+
 # HOW TO RUN
 
 cd /src
@@ -74,8 +82,9 @@ Try out the builtins:
 
 ```bash
 echo hello world
-type ls
-exit
+cd src
+
+
 ```
 
 And external programs:
