@@ -197,6 +197,14 @@ void handle_nittalk(char **args)
         printf(" Success! File transmission complete. Saved as '%s' (%u/%u bytes received)\n",
                header.filename, total_payload_read, file_size);
 
+        printf("[Receiver] Keystream: ");
+        uint32_t temp_state = keystream_state;
+        for (int i = 0; i < 10; i++)
+        {
+            printf("%u ", generate_keystream_byte(&temp_state));
+        }
+        printf("\n");
+
         fclose(out_file);
         close(client_fd);
         close(server_fd);
