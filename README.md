@@ -485,3 +485,163 @@ Quickest test: Temporarily turn off the firewall on Laptop A (Control Panel > Sy
 IP Addressing: Always use hostname -I (on Linux) or ipconfig (on Windows) to get the correct current IP, as they can change if you reconnect to Wi-Fi.
 
 Does your ping command succeed between the two laptops? If ping works, the Tripwire test will definitely work.
+
+ipconfig on laptop a to get windows wifi ip
+
+# WSL Network Connectivity Troubleshooting Guide
+
+## Problem Encountered
+
+Laptop B was unable to ping Laptop A or communicate with the WSL instance.
+
+### Symptoms
+
+- `ping 192.168.1.39` → Request timed out.
+- `Test-NetConnection` → Ping failed.
+- WSL IP (`172.17.66.30`) was visible, but communication from another laptop was not possible.
+
+---
+
+# Step 1: Verify WSL IP
+
+Inside WSL, check the IP address:
+
+```bash
+ip a
+```
+
+or
+
+```bash
+hostname -I
+```
+
+Result:
+
+```
+WSL IP = 172.17.66.30
+```
+
+---
+
+# Step 2: Verify Windows Wi-Fi IP
+
+In Windows PowerShell:
+
+```powershell
+ipconfig
+```
+
+Result:
+
+```
+Wi-Fi IP = 192.168.1.39
+```
+
+---
+
+# Step 3: Test Network Connectivity
+
+From Laptop B:
+
+```powershell
+ping 192.168.1.39
+```
+
+Result:
+
+```
+Request timed out
+```
+
+This indicated that the problem was with Windows networking, not WSL.
+
+---
+
+# Step 4: Check Network Profile
+
+Run:
+
+```powershell
+Get-NetConnectionProfile
+```
+
+Result:
+
+```
+NetworkCategory : Public
+```
+
+A Public network blocks many incoming connections by default.
+
+---
+
+# Step 5: Change Network to Private
+
+Run as Administrator:
+
+```powershell
+Set-NetConnectionProfile -InterfaceAlias "Wi-Fi" -NetworkCategory Private
+```
+
+Verify:
+
+```powershell
+Get-NetConnectionProfile
+```
+
+Result:
+
+```
+NetworkCategory : Private
+```
+
+---
+
+# Step 6: Enable Ping Through Firewall
+
+Run:
+
+```powershell
+Enable-NetFirewallRule -Name FPS-ICMP4-ERQ-In
+```
+
+This allows incoming ICMP (ping) requests.
+
+---
+
+# Step 7: Test Again
+
+From Laptop B:
+
+```powershell
+ping 192.168.1.39
+```
+
+Result:
+
+```
+Reply from 192.168.1.39
+```
+
+Communication between the two laptops was successfully established.
+
+---
+
+# Root Cause
+
+The Windows Wi-Fi network was configured as **Public**, causing Windows Firewall to block incoming ICMP and network traffic between devices. Since Laptop B could not even reach Windows on Laptop A, the issue was unrelated to WSL.
+
+---
+
+# Solution Summary
+
+1. Verified WSL IP using `ip a`.
+2. Verified Windows Wi-Fi IP using `ipconfig`.
+3. Tested connectivity using `ping`.
+4. Checked network profile using `Get-NetConnectionProfile`.
+5. Changed the network from **Public** to **Private**.
+6. Enabled the Windows Firewall rule for ICMP (`Enable-NetFirewallRule -Name FPS-ICMP4-ERQ-In`).
+7. Confirmed successful communication by pinging Laptop A from Laptop B.
+
+This resolved the connectivity issue and allowed communication with the WSL environment.
