@@ -5,6 +5,10 @@ Spider_Task_2/
 ├── Makefile # Automation build script
 └── README.md # Setup and compilation instructions
 
+# REFER TO THIS WEBSITE FOR EASY UNDERSTANDING
+
+[Guide](https://hibanitt.github.io/spider-task-2-website/)
+
 # HOW TO RUN
 
 cd /src
@@ -19,7 +23,9 @@ gcc -Iinclude src/main.c src/execute.c -o octo-shell
 
 ![Codecrafters Shell Challenge](./proof.png)
 
-## How to Build and Run
+# How to Build and Run
+
+## Testing level 1
 
 ### 1. Open WSL (Ubuntu)
 
