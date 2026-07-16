@@ -437,6 +437,64 @@ socket(AF_INET, SOCK_RAW, ...)
 
 ## Raw sockets allow direct access to packets before they reach higher protocol layers. The IDS can inspect IP headers, extract source addresses using structures such as `struct iphdr`, and compare them against trusted addresses. Suspicious packets trigger warnings on the terminal.
 
+# Problem I faced - Network Connectivity (Laptop A to Laptop B)
+
+Out of curiosity, I attempted to debug the communication breakdown between Laptop B and my WSL instance on Laptop A. Despite my efforts, the connectivity remains unresolved. Below is the detailed breakdown of the steps I took:
+
+---
+
+## Problem Encountered
+Laptop B was unable to ping Laptop A or establish any form of communication with the WSL instance hosted on Laptop A.
+
+## Errors 
+*   **`ping 192.168.1.39`**: Request timed out.
+*   **`Test-NetConnection`**: Ping failed.
+*   **WSL Status**: The WSL IP (`172.17.66.30`) was visible, but external traffic from the secondary laptop was being blocked entirely.
+
+---
+
+## Troubleshooting Steps I followed 
+
+### Step 1: Verify WSL IP
+*   **Commands:** `ip a` / `hostname -I`
+*   **Result:** WSL IP identified as `172.17.66.30`.
+
+### Step 2: Verify Windows Wi-Fi IP
+*   **Command:** `ipconfig`
+*   **Result:** Windows Wi-Fi IP identified as `192.168.1.39`.
+
+### Step 3: Test Network Connectivity
+*   **Command:** `ping 192.168.1.39`
+*   **Result:** Request timed out. This confirmed that the root issue was occurring at the Windows host level, rather than within the WSL environment itself.
+
+### Step 4: Check Network Profile
+*   **Command:** `Get-NetConnectionProfile`
+*   **Result:** `NetworkCategory` was set to `Public`.
+*   **Analysis:** A "Public" network profile in Windows defaults to strict firewall policies that block incoming connections, explaining why the ping failed.
+
+### Step 5: Change Network to Private
+*   **Command:** `Set-NetConnectionProfile -InterfaceAlias "Wi-Fi" -NetworkCategory Private`
+*   **Result:** Verified the change via `Get-NetConnectionProfile`; the network is now set to `Private`.
+
+### Step 6: Enable Ping Through Firewall
+*   **Command:** `Enable-NetFirewallRule -Name FPS-ICMP4-ERQ-In`
+*   **Result:** Explicitly enabled incoming ICMP requests to allow the machine to respond to pings.
+
+### Step 7: Test Again
+*   **Command:** `ping 192.168.1.39`
+*   **Result:** Reply received from `192.168.1.39`. Communication with the Windows host is now successful.
+
+---
+
+## Root Cause & Current Status
+The Windows Wi-Fi network profile was originally set to **Public**, which triggered Windows Firewall to block incoming ICMP and network traffic.
+
+While I successfully resolved the host-level blocking by switching to a **Private** profile and enabling the necessary ICMP rules, I still cannot establish communication with the WSL instance. I tried all these steps, but it still isn't working as expected.
+
 # Conclusion
 
-Through this project, I implemented a complete secure file-transfer workflow that combines socket programming, protocol design, cryptography, and defensive programming. The system uses a custom 72-byte packed header, handles TCP stream edge cases safely, performs a Diffie–Hellman-style key exchange to establish a shared secret, generates a synchronized keystream using an LCG, and encrypts transferred files using XOR-based stream encryption. Careful handling of struct padding, buffer limits, partial transmissions, and byte-order conversion helped make the solution reliable and portable across different systems. t_edu/Documents/Microsoft%20Copilot%20Chat%20Files/nittalk.c
+Through this project, I implemented a complete secure file-transfer workflow that combines socket programming, protocol design, cryptography, and defensive programming. The system uses a custom 72-byte packed header, handles TCP stream edge cases safely, performs a Diffie–Hellman-style key exchange to establish a shared secret, generates a synchronized keystream using an LCG, and encrypts transferred files using XOR-based stream encryption. Careful handling of struct padding, buffer limits, partial transmissions, and byte-order conversion helped make the solution reliable and portable across different systems. 
+
+
+
+
