@@ -6,7 +6,7 @@
 #include <arpa/inet.h>  // Contains 'inet_ntoa' to make IPs readable
 
 #define BUFFER_SIZE 65536 // The maximum size of an IP packet (64KB)
-#define TEAMMATE_IP "192.168.1.38"
+#define TEAMMATE_IP "192.168.1.35"
 
 int main()
 {
