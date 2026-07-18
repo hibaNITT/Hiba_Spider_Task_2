@@ -443,58 +443,95 @@ Out of curiosity, I attempted to debug the communication breakdown between Lapto
 
 ---
 
-## Problem Encountered
-Laptop B was unable to ping Laptop A or establish any form of communication with the WSL instance hosted on Laptop A.
+# BONUS TASK
 
-## Errors 
-*   **`ping 192.168.1.39`**: Request timed out.
-*   **`Test-NetConnection`**: Ping failed.
-*   **WSL Status**: The WSL IP (`172.17.66.30`) was visible, but external traffic from the secondary laptop was being blocked entirely.
+### Understanding Linux Kernel Module (LKM)
+
+Think of our operating system like a large house:
+
+- **User Space:** This is where I live (my apps, browser, shell). It is safe and comfortable, but I am restricted to only changing the furniture—I cannot touch the structural walls or the foundation.
+- **Kernel Space:** This is the foundation and the internal wiring of the house. It controls everything—the hardware, the electricity, and the pipes.
+
+A **Kernel Module (LKM)** is like a custom "plug-in" that lets me change how the foundation works while the house is still running, without having to rebuild the entire structure.
+
+### Why do we have to use them?
+
+we can use LKMs when we need to extend the OS functionality without a full system reboot, such as adding new device drivers, implementing new file systems, or creating performance-critical monitoring tools. They allow me to bridge the gap between high-level application logic and low-level hardware control.
+
+### Benefits of LKM Implementation
+
+1.  **Total System Control:** I can add new features or drivers on the fly without having to restart my computer.
+2.  **Extreme Speed:** Because they run in the "foundation" (Kernel Space), they don't waste time switching back and forth between different parts of the system. This makes them the go-to choice for high-performance security tools and firewalls.
+3.  **Deep Visibility:** wecan hook into critical system events to monitor everything from network traffic to specific process activities that standard apps simply cannot see.
+4.  **Advanced Logging:** By writing directly to the kernel buffer (`dmesg`), wecan capture important logs at the highest privilege levels, which is essential for deep system debugging.
+5.  **The "Pro" Advantage:** Understanding the difference between User Space and Kernel Space is the biggest step in moving from a coder to a **systems engineer**. It shows that weunderstand how my computer functions beneath the surface-level code.
+
+### The Learning Takeaway
+
+I studied this concept to understand how to interact with the core of the OS.
+While I learned that my current environment (**WSL2**) is a "locked-down" version of Linux designed for stability—which prevents me from loading modules into the kernel—the value lies in the theory.
+I now understand that whenever I need **maximum speed** and **total visibility** into the core operations of a system, an LKM is the tool for the job.
 
 ---
 
-## Troubleshooting Steps I followed 
+## Problem I Encountered
+
+Laptop B was unable to ping Laptop A or establish any form of communication with the WSL instance hosted on Laptop A.
+
+## Errors
+
+- **`ping 192.168.1.39`**: Request timed out.
+- **`Test-NetConnection`**: Ping failed.
+- **WSL Status**: The WSL IP (`172.17.66.30`) was visible, but external traffic from the secondary laptop was being blocked entirely.
+
+---
+
+## Troubleshooting Steps I followed
 
 ### Step 1: Verify WSL IP
-*   **Commands:** `ip a` / `hostname -I`
-*   **Result:** WSL IP identified as `172.17.66.30`.
+
+- **Commands:** `ip a` / `hostname -I`
+- **Result:** WSL IP identified as `172.17.66.30`.
 
 ### Step 2: Verify Windows Wi-Fi IP
-*   **Command:** `ipconfig`
-*   **Result:** Windows Wi-Fi IP identified as `192.168.1.39`.
+
+- **Command:** `ipconfig`
+- **Result:** Windows Wi-Fi IP identified as `192.168.1.39`.
 
 ### Step 3: Test Network Connectivity
-*   **Command:** `ping 192.168.1.39`
-*   **Result:** Request timed out. This confirmed that the root issue was occurring at the Windows host level, rather than within the WSL environment itself.
+
+- **Command:** `ping 192.168.1.39`
+- **Result:** Request timed out. This confirmed that the root issue was occurring at the Windows host level, rather than within the WSL environment itself.
 
 ### Step 4: Check Network Profile
-*   **Command:** `Get-NetConnectionProfile`
-*   **Result:** `NetworkCategory` was set to `Public`.
-*   **Analysis:** A "Public" network profile in Windows defaults to strict firewall policies that block incoming connections, explaining why the ping failed.
+
+- **Command:** `Get-NetConnectionProfile`
+- **Result:** `NetworkCategory` was set to `Public`.
+- **Analysis:** A "Public" network profile in Windows defaults to strict firewall policies that block incoming connections, explaining why the ping failed.
 
 ### Step 5: Change Network to Private
-*   **Command:** `Set-NetConnectionProfile -InterfaceAlias "Wi-Fi" -NetworkCategory Private`
-*   **Result:** Verified the change via `Get-NetConnectionProfile`; the network is now set to `Private`.
+
+- **Command:** `Set-NetConnectionProfile -InterfaceAlias "Wi-Fi" -NetworkCategory Private`
+- **Result:** Verified the change via `Get-NetConnectionProfile`; the network is now set to `Private`.
 
 ### Step 6: Enable Ping Through Firewall
-*   **Command:** `Enable-NetFirewallRule -Name FPS-ICMP4-ERQ-In`
-*   **Result:** Explicitly enabled incoming ICMP requests to allow the machine to respond to pings.
+
+- **Command:** `Enable-NetFirewallRule -Name FPS-ICMP4-ERQ-In`
+- **Result:** Explicitly enabled incoming ICMP requests to allow the machine to respond to pings.
 
 ### Step 7: Test Again
-*   **Command:** `ping 192.168.1.39`
-*   **Result:** Reply received from `192.168.1.39`. Communication with the Windows host is now successful.
+
+- **Command:** `ping 192.168.1.39`
+- **Result:** Reply received from `192.168.1.39`. Communication with the Windows host is now successful.
 
 ---
 
 ## Root Cause & Current Status
+
 The Windows Wi-Fi network profile was originally set to **Public**, which triggered Windows Firewall to block incoming ICMP and network traffic.
 
 While I successfully resolved the host-level blocking by switching to a **Private** profile and enabling the necessary ICMP rules, I still cannot establish communication with the WSL instance. I tried all these steps, but it still isn't working as expected.
 
 # Conclusion
 
-Through this project, I implemented a complete secure file-transfer workflow that combines socket programming, protocol design, cryptography, and defensive programming. The system uses a custom 72-byte packed header, handles TCP stream edge cases safely, performs a Diffie–Hellman-style key exchange to establish a shared secret, generates a synchronized keystream using an LCG, and encrypts transferred files using XOR-based stream encryption. Careful handling of struct padding, buffer limits, partial transmissions, and byte-order conversion helped make the solution reliable and portable across different systems. 
-
-
-
-
+Through this project, I implemented a complete secure file-transfer workflow that combines socket programming, protocol design, cryptography, and defensive programming. The system uses a custom 72-byte packed header, handles TCP stream edge cases safely, performs a Diffie–Hellman-style key exchange to establish a shared secret, generates a synchronized keystream using an LCG, and encrypts transferred files using XOR-based stream encryption. Careful handling of struct padding, buffer limits, partial transmissions, and byte-order conversion helped make the solution reliable and portable across different systems.
